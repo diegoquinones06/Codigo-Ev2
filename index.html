@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smart Home Dashboard</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>🏠 Smart Home Dashboard</h1>
+
+<div class="stats">
+    <div>Total: <span id="total"></span></div>
+    <div>Activos: <span id="activos"></span></div>
+    <div>Inactivos: <span id="inactivos"></span></div>
+    <div>Alertas: <span id="alertas"></span></div>
+</div>
+
+<input type="text" id="buscar" placeholder="Buscar dispositivo">
+
+<h2>Agregar dispositivo</h2>
+
+<form id="form">
+    <input type="text" id="nombre" placeholder="Nombre" required>
+
+    <select id="tipo">
+        <option>Sensor Temperatura</option>
+        <option>Cámara IP</option>
+        <option>Sensor Movimiento</option>
+        <option>Sensor Humo</option>
+    </select>
+
+    <input type="text" id="ubicacion" placeholder="Ubicación" required>
+
+    <input type="number" id="temperatura" placeholder="Temperatura" required>
+
+    <input type="number" id="bateria" placeholder="Batería %" required>
+
+    <select id="estado">
+        <option>Activo</option>
+        <option>Inactivo</option>
+    </select>
+
+    <button>Agregar</button>
+</form>
+
+<hr>
+
+<div id="lista"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
