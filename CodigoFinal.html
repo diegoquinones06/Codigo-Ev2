@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smart Home Dashboard</title>
+
+<style>
+body{
+    font-family:Arial;
+    background:#f4f4f4;
+    max-width:1000px;
+    margin:auto;
+    padding:20px;
+}
+
+h1,h2{
+    text-align:center;
+}
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+    margin:20px 0;
+}
+
+.stats div{
+    background:white;
+    padding:15px;
+    border-radius:10px;
+    text-align:center;
+}
+
+form{
+    display:grid;
+    gap:10px;
+    margin-bottom:20px;
+}
+
+input,select,button{
+    padding:10px;
+}
+
+#lista{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:15px;
+}
+
+.card{
+    background:white;
+    padding:15px;
+    border-radius:10px;
+}
+
+.alerta{
+    background:#ffb3b3;
+}
+
+.bateria{
+    background:#fff3b0;
+}
+
+.inactivo{
+    background:#d3d3d3;
+}
+
+button{
+    cursor:pointer;
+}
+</style>
+
+</head>
+<body>
+
+<h1>🏠 Smart Home Dashboard</h1>
+
+<div class="stats">
+    <div>Total<br><span id="total">0</span></div>
+    <div>Activos<br><span id="activos">0</span></div>
+    <div>Inactivos<br><span id="inactivos">0</span></div>
+    <div>Alertas<br><span id="alertas">0</span></div>
+</div>
+
+<input type="text" id="buscar" placeholder="Buscar dispositivo">
+
+<h2>Agregar dispositivo</h2>
+
+<form id="form">
+
+<input type="text" id="nombre" placeholder="Nombre" required>
+
+<select id="tipo">
+    <option>Sensor Temperatura</option>
+    <option>Cámara IP</option>
+    <option>Sensor Movimiento</option>
+    <option>Sensor Humo</option>
+</select>
+
+<input type="text" id="ubicacion" placeholder="Ubicación" required>
+
+<input type="number" id="temperatura" placeholder="Temperatura" required>
+
+<input type="number" id="bateria" placeholder="Batería %" required>
+
+<select id="estado">
+    <option>Activo</option>
+    <option>Inactivo</option>
+</select>
+
+<button>Agregar dispositivo</button>
+
+</form>
+
+<div id="lista"></div>
+
+<script>
+
+let dispositivos = JSON.parse(localStorage.getItem("dispositivos")) || [];
+
+const lista = document.getElementById("lista");
+
+function guardar(){
+    localStorage.setItem("dispositivos",JSON.stringify(dispositivos));
+}
+
+function mostrar(texto=""){
+
+    lista.innerHTML="";
+
+    let filtrados = dispositivos.filter(d =>
+        d.nombre.toLowerCase().includes(texto.toLowerCase())
+    );
+
+    filtrados.forEach(d=>{
+
+        let clase="";
+
+        if(d.temperatura > 35)
+            clase="alerta";
+        else if(d.bateria < 20)
+            clase="bateria";
+        else if(d.estado=="Inactivo")
+            clase="inactivo";
+
+        lista.innerHTML += `
+        <div class="card ${clase}">
+            <h3>${d.nombre}</h3>
+
+            <p><b>Tipo:</b> ${d.tipo}</p>
+
+            <p><b>Ubicación:</b> ${d.ubicacion}</p>
+
+            <p><b>Temperatura:</b> ${d.temperatura}°C</p>
+
+            <p><b>Batería:</b> ${d.bateria}%</p>
+
+            <p><b>Estado:</b> ${d.estado}</p>
+
+            <button onclick="editar(${d.id})">
+            Editar
+            </button>
+
+            <button onclick="eliminar(${d.id})">
+            Eliminar
+            </button>
+
+        </div>`;
+    });
+
+    total.textContent = dispositivos.length;
+
+    activos.textContent =
+        dispositivos.filter(d=>d.estado=="Activo").length;
+
+    inactivos.textContent =
+        dispositivos.filter(d=>d.estado=="Inactivo").length;
+
+    alertas.textContent =
+        dispositivos.filter(d =>
+            d.temperatura>35 || d.bateria<20
+        ).length;
+}
+
+document.getElementById("form")
+.addEventListener("submit",e=>{
+
+    e.preventDefault();
+
+    dispositivos.push({
+
+        id: Date.now(),
+
+        nombre: nombre.value,
+
+        tipo: tipo.value,
+
+        ubicacion: ubicacion.value,
+
+        temperatura: Number(temperatura.value),
+
+        bateria: Number(bateria.value),
+
+        estado: estado.value
+
+    });
+
+    guardar();
+    mostrar();
+    form.reset();
+
+});
+
+function eliminar(id){
+
+    dispositivos =
+        dispositivos.filter(d=>d.id!=id);
+
+    guardar();
+    mostrar();
+
+}
+
+function editar(id){
+
+    let d =
+        dispositivos.find(x=>x.id==id);
+
+    d.temperatura =
+        prompt("Nueva temperatura",d.temperatura);
+
+    d.bateria =
+        prompt("Nueva batería",d.bateria);
+
+    d.estado =
+        prompt("Activo o Inactivo",d.estado);
+
+    guardar();
+    mostrar();
+
+}
+
+buscar.addEventListener("input",()=>{
+    mostrar(buscar.value);
+});
+
+mostrar();
+
+</script>
+
+</body>
+</html>
